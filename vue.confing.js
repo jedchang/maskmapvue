@@ -1,10 +1,7 @@
 // vue.confing.js
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'maskmapvue'
-    ? '/maskmapvue/'
-    : '/',
+  publicPath: '/maskmapvue/',
 };
-
 
 // module.exports = {
 //   publicPath: '',
