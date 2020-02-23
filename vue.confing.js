@@ -2,7 +2,3 @@
 module.exports = {
   publicPath: '/maskmapvue/',
 };
-
-// module.exports = {
-//   publicPath: '',
-// };

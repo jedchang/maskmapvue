@@ -7,7 +7,7 @@
             <label for="cityName" class="mr-2 col-form-label text-right">縣市</label>
             <div class="flex-fill">
               <select id="cityName" class="form-control"
-              v-model="select.city" @change="select.area = ''">
+              v-model="select.city" v-on:change="select.area = ''">
                 <option value="">-- Select One --</option>
                 <option :value="c.CityName" v-for="c in cityName" :key="c.CityName">
                   {{ c.CityName }}
@@ -19,7 +19,7 @@
             <label for="area" class="mr-2 col-form-label text-right">地區</label>
             <div class="flex-fill">
               <select id="area" class="form-control" v-if="select.city.length"
-                v-model="select.area" @change="updateSelect">
+                v-model="select.area" v-on:change="updateSelect">
                 <option value="">-- Select One --</option>
                 <option :value="a.AreaName"
                   v-for="a in cityName.find((city) => city.CityName === select.city).AreaList"
@@ -37,8 +37,10 @@
             <a class="list-group-item text-left" :key="key"
               v-if="item.properties.county === select.city
                 && item.properties.town === select.area"
-              :class="{ 'highlight': item.properties.mask_adult || item.properties.mask_child}"
-              @click="penTo(item)">
+              :class="{ 'bothInStock': item.properties.mask_adult && item.properties.mask_child,
+                        'outOfStock': !item.properties.mask_adult && !item.properties.mask_child,
+                        'childInStock': item.properties.mask_child }"
+              v-on:click="penTo(item)">
               <h3>{{ item.properties.name }}</h3>
               <p class="mb-0">
                 成人口罩：{{ item.properties.mask_adult}} | 兒童口罩：{{ item.properties.mask_child}}
@@ -82,11 +84,11 @@ const icons = {
 };
 const osm = {
   addMapMarker(x, y, item) {
-    const icon = item.mask_adult || item.mask_child ? icons.green : icons.grey;
+    const icon = item.mask_adult && item.mask_child ? icons.green : icons.grey;
     L.marker([y, x], {
       icon,
     }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
-    口罩剩餘：<strong>成人 - ${item.mask_adult ? `${item.mask_adult} 個` : '未取得資料'}/ 兒童 - ${item.mask_child ? `${item.mask_child} 個` : '未取得資料'}</strong><br>
+    口罩剩餘：<strong>成人 - ${item.mask_adult ? `${item.mask_adult} 個` : `${item.mask_adult} 個`}｜兒童 - ${item.mask_child ? `${item.mask_child} 個` : '未取得資料'}</strong><br>
     地址: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
     電話: ${item.phone}<br>
     <small>最後更新時間: ${item.updated}</small>`);
@@ -99,12 +101,12 @@ const osm = {
     });
   },
   penTo(x, y, item) {
-    const icon = item.mask_adult || item.mask_child ? icons.green : icons.grey;
+    const icon = item.mask_adult && item.mask_child ? icons.green : icons.grey;
     osmMap.panTo(new L.LatLng(y, x));
     L.marker([y, x], {
       icon,
     }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
-    口罩剩餘：<strong>成人 - ${item.mask_adult ? `${item.mask_adult} 個` : '未取得資料'}｜兒童 - ${item.mask_child ? `${item.mask_child} 個` : '未取得資料'}</strong><br>
+    口罩剩餘：<strong>成人 - ${item.mask_adult ? `${item.mask_adult} 個` : `${item.mask_adult} 個`}｜兒童 - ${item.mask_child ? `${item.mask_child} 個` : '未取得資料'}</strong><br>
     地址: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
     電話: ${item.phone}<br>
     <small>最後更新時間: ${item.updated}</small>`).openPopup();
@@ -118,7 +120,7 @@ export default {
     osmMap: {},
     select: {
       city: '臺南市',
-      area: '永康區',
+      area: '歸仁區',
     },
   }),
   methods: {
@@ -152,6 +154,7 @@ export default {
       const pharmacy = this.data.find((item) => item.properties.town === this.select.area);
       const { geometry, properties } = pharmacy;
       osm.penTo(geometry.coordinates[0], geometry.coordinates[1], properties);
+      console.log();
     },
   },
   mounted() {
@@ -181,8 +184,14 @@ export default {
 .home {
   position: relative;
 }
-.highlight {
+.childInStock {
+  background: #ffd5d5;
+}
+.bothInStock {
   background: #e9ffe3;
+}
+.outOfStock {
+  background: gray;
 }
 .toolbox {
   height: 100vh;
