@@ -1,0 +1,232 @@
+body {
+  font-family: Noto Sans TC;
+}
+#map {
+  height: 100vh;
+  width:calc(100vw - 256px);
+  overflow: hidden;
+  &.active {
+    transform: translateX(-128px);
+    width: 100vw;
+  }
+}
+#app {
+  display: flex;
+}
+.sidebar {
+  transition: all 0.5s;
+	z-index: 999;
+	position: relative;
+	top: 0px;
+	left: 0px;
+	height: 100vh;
+	max-height: 100vh;
+	width: 256px;
+	background-color: #73c0d8;
+	color: white;
+	box-shadow: 0px 3px 6px #000029;
+	display: flex;
+	flex-direction: column;
+}
+
+.sidebar{
+  &.active {
+    transform: translateX(-100%);
+  }
+}
+
+.collapseBtn {
+  background-color: #73c0d8;
+  color:white;
+  font-size: 1.5em;
+  top: 71px;
+  height: 49px;
+  width: 17px;
+  position: absolute;
+  right: -17px;
+  border-radius: 0 5px 5px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.today {
+	padding: 16px 16px 8px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.today-week {
+	font-size: 36px;
+	font-weight: normal;
+	margin: 0;
+}
+.today-info {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+.today-date {
+	margin-bottom: 8px;
+}
+.today-description {
+	font-size: 14px;
+}
+.today-description-high-light {
+	color: #fff126;
+	font-size: 16px;
+	font-weight: bold;
+}
+.search {
+	padding: 4px 0 16px;
+  display: flex;
+  flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+}
+.search-input-group {
+	display: flex;
+	align-items: center;
+	margin: 0 16px;
+}
+// .search-input-group label {
+// 	font-size: 18px;
+// 	margin-right: 8px;
+// }
+.search-input-group select {
+	flex: 1;
+	display: block;
+	width: 100%;
+	height: 36px;
+	padding: 0px 6px;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #495057;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.pharmacies {
+	overflow: auto;
+}
+.pharmacy {
+	cursor: pointer;
+	background-color: white;
+	font-size: 14px;
+	color: #666666;
+	padding: 16px;
+	border-bottom: 2px solid #d9d9d9;
+	transition: all 0.3s;
+}
+.pharmacy:hover {
+	opacity: 0.85;
+}
+.pharmacy-title {
+	font-size: 18px;
+	font-weight: bold;
+	color: #333333;
+	margin-bottom: 8px;
+}
+.pharmacy-address,
+.pharmacy-phone {
+	margin-bottom: 8px;
+}
+.pharmacy-mask-group {
+  display: flex;
+  flex-wrap: nowrap;
+	justify-content: space-between;
+}
+.pharmacy-mask {
+	width: 50%;
+  display: flex;
+	justify-content: space-between;
+	align-items: center;
+  padding: 10px 16px;
+	border-radius: 20px;
+	color: white;
+	font-weight: bold;
+  font-size: 16px;
+}
+
+.popUp {
+	width: 100%;
+  display: flex;
+	justify-content: space-between;
+	align-items: center;
+  padding: 10px 16px;
+	border-radius: 20px;
+	color: white;
+	font-weight: bold;
+  font-size: 16px;
+}
+
+.pharmacy-mask:not(:last-child) {
+	margin-right: 10px;
+}
+
+.adultMaskInStock {
+	background-color: #73c0d8;
+}
+.adultMaskOutOfStock {
+	background-color: #a5a5a5;
+}
+.childMaskInStock {
+	background-color: #ffa573;
+}
+.childMaskOutOfStock {
+	background-color: #a5a5a5;
+}
+#lastUpdate {
+  text-align: right;
+  margin:10px -5px -5px 0;
+}
+.no-data {
+	margin-top: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+@media (min-width: 1599px) {
+  .search {
+    .search-input-group {
+      width: initial;
+    }
+  }
+}
+
+@media (max-width: 1600px) {
+  .search {
+    flex-wrap: wrap;
+    .search-input-group {
+      width: 100%;
+    }
+  }
+  .pharmacy-mask-group {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .pharmacy-mask:not(:last-child) {
+    margin-right: unset;
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .search {
+    flex-wrap: wrap;
+    .search-input-group {
+      width: 100%;
+    }
+  }
+  .pharmacy-mask {
+    width:100%;
+  }
+  .pharmacy-mask:not(:last-child) {
+    margin-right: unset;
+    margin-bottom: 5px;
+  }
+}
