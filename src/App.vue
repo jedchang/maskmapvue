@@ -1,203 +1,234 @@
 <template>
-  <div class="home row no-gutters">
-    <div class="col-sm-3">
-      <div v-if="cityName.length" class="toolbox">
-        <div class="sticky-top bg-white shadow-sm p-2">
-          <div class="form-group d-flex">
-            <label for="cityName" class="mr-2 col-form-label text-right">縣市</label>
-            <div class="flex-fill">
-              <select id="cityName" class="form-control"
-              v-model="select.city" v-on:change="select.area = ''">
-                <option value="">-- Select One --</option>
-                <option :value="c.CityName" v-for="c in cityName" :key="c.CityName">
-                  {{ c.CityName }}
-                </option>
-              </select>
-            </div>
+  <div id="app">
+    <Loading :active.sync="isLoading"></Loading>
+    <div class="sidebar" :class="{ active:isCollapse }">
+      <a href="#" class="collapseBtn" @click="sideBarCollapse()">
+        <em v-if="!isCollapse"><i class="fa fa-angle-left fa-2" aria-hidden="true"></i></em>
+        <em v-else><i class="fa fa-angle-right fa-2" aria-hidden="true"></i></em>
+      </a>
+      <div class="today">
+        <h2 class="today-week">{{today.getDay() | convertToChineseDay}}</h2>
+        <div class="today-info">
+          <div class="today-date">{{today | convertToDateString}}</div>
+          <div class="today-description">身分證末碼為
+            <span class="today-description-high-light">
+              {{today.getDay() % 2 === 0 ? "0,2,4,6,8" : "1,3,5,7,9"}}
+            </span>
+            可購買
           </div>
-          <div class="form-group d-flex">
-            <label for="area" class="mr-2 col-form-label text-right">地區</label>
-            <div class="flex-fill">
-              <select id="area" class="form-control" v-if="select.city.length"
-                v-model="select.area" v-on:change="updateSelect">
-                <option value="">-- Select One --</option>
-                <option :value="a.AreaName"
-                  v-for="a in cityName.find((city) => city.CityName === select.city).AreaList"
-                  :key="a.AreaName">
-                  {{ a.AreaName }}
-                </option>
-              </select>
-            </div>
-          </div>
-          <p class="mb-0 small text-muted text-right">請先選擇區域查看（綠色表示還有口罩）</p>
         </div>
-
-        <ul class="list-group">
-          <template v-for="(item, key) in data">
-            <a class="list-group-item text-left" :key="key"
-              v-if="item.properties.county === select.city
-                && item.properties.town === select.area"
-              :class="{ 'bothInStock': item.properties.mask_adult && item.properties.mask_child,
-                        'outOfStock': !item.properties.mask_adult && !item.properties.mask_child,
-                        'childInStock': item.properties.mask_child }"
-              v-on:click="penTo(item)">
-              <h3>{{ item.properties.name }}</h3>
-              <p class="mb-0">
-                成人口罩：{{ item.properties.mask_adult}} | 兒童口罩：{{ item.properties.mask_child}}
-              </p>
-              <p class="mb-0">地址：<a :href="`https://www.google.com.tw/maps/place/${item.properties.address}`"
-                target="_blank" title="Google Map">
-                {{ item.properties.address }}</a>
-              </p>
-            </a>
+      </div>
+      <div class="search">
+        <div class="search-input-group">
+          <!-- <label for="cityName">縣市</label> -->
+          <select
+            id="cityName"
+            v-model="select.cityName"
+            @change="select.areaName = ''; updateMap()"
+          >
+            <option
+              value=""
+              disabled
+            >請選擇</option>
+            <option
+              v-for="city in cities"
+              :key="city.CityName"
+              :value="city.CityName"
+            >
+              {{city.CityName}}
+            </option>
+          </select>
+        </div>
+        <div class="search-input-group">
+          <!-- <label for="areaName">地區</label> -->
+          <select
+            id="areaName"
+            v-model="select.areaName"
+            @change="updateMap"
+          >
+            <option
+              value=""
+              disabled
+            >請選擇</option>
+            <option
+              v-for="area in cities.find((city) => city.CityName === select.cityName).AreaList"
+              :key="area.AreaName"
+              :value="area.AreaName"
+            >
+              {{area.AreaName}}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="pharmacies">
+        <template v-if="filterPharmacies.length !== 0">
+          <template v-for="pharmacy in filterPharmacies">
+            <div
+              class="pharmacy"
+              :key="pharmacy.properties.id"
+              @click="focus(pharmacy)"
+            >
+              <div class="pharmacy-title">{{pharmacy.properties.name}}</div>
+              <div class="pharmacy-address">{{pharmacy.properties.address}}</div>
+              <div class="pharmacy-phone">{{pharmacy.properties.phone}}</div>
+              <div class="pharmacy-mask-group">
+                <div
+                  class="pharmacy-mask"
+                  :class="getMaskAdultCountClass(pharmacy.properties.mask_adult)"
+                >
+                  <div class="pharmacy-mask-title">成人口罩</div>
+                  <div class="pharmacy-mask-count">{{pharmacy.properties.mask_adult}}</div>
+                </div>
+                <div
+                  class="pharmacy-mask"
+                  :class="getMaskChildCountClass(pharmacy.properties.mask_child)"
+                >
+                  <div class="pharmacy-mask-title">兒童口罩</div>
+                  <div class="pharmacy-mask-count">{{pharmacy.properties.mask_child}}</div>
+                </div>
+              </div>
+            </div>
           </template>
-        </ul>
+        </template>
+        <div
+          v-else
+          class="no-data"
+        >
+          沒有資料 或 請選擇地區
+        </div>
       </div>
     </div>
-    <div class="col-sm-9">
-      <div id="map"></div>
-    </div>
+    <div id="map" :class="{ active:isCollapse }">map</div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import L from 'leaflet';
-import cityName from './assets/cityName.json';
+import cities from './assets/cityName.json';
+import OpenStreetMap, { markerIcons } from './assets/openStreetMap';
 
-let osmMap = {};
-const iconsConfig = {
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
+const getMaskAdultCountClass = (count) => {
+  if (count > 0) {
+    return 'adultMaskInStock';
+  }
+  if (count <= 0) {
+    return 'adultMaskOutOfStock';
+  }
+  return '';
 };
-const icons = {
-  green: new L.Icon({
-    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-    ...iconsConfig,
-  }),
-  grey: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png',
-    ...iconsConfig,
-  }),
+const getMaskChildCountClass = (count) => {
+  if (count > 0) {
+    return 'childMaskInStock';
+  }
+  if (count <= 0) {
+    return 'childMaskOutOfStock';
+  }
+  return '';
 };
-const osm = {
-  addMapMarker(x, y, item) {
-    const icon = item.mask_adult && item.mask_child ? icons.green : icons.grey;
-    L.marker([y, x], {
-      icon,
-    }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
-    口罩剩餘：<strong>成人 - ${item.mask_adult ? `${item.mask_adult} 個` : `${item.mask_adult} 個`}｜兒童 - ${item.mask_child ? `${item.mask_child} 個` : '未取得資料'}</strong><br>
-    地址: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
-    電話: ${item.phone}<br>
-    <small>最後更新時間: ${item.updated}</small>`);
-  },
-  removeMapMarker() {
-    osmMap.eachLayer((layer) => {
-      if (layer instanceof L.Marker) {
-        osmMap.removeLayer(layer);
-      }
-    });
-  },
-  penTo(x, y, item) {
-    const icon = item.mask_adult && item.mask_child ? icons.green : icons.grey;
-    osmMap.panTo(new L.LatLng(y, x));
-    L.marker([y, x], {
-      icon,
-    }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
-    口罩剩餘：<strong>成人 - ${item.mask_adult ? `${item.mask_adult} 個` : `${item.mask_adult} 個`}｜兒童 - ${item.mask_child ? `${item.mask_child} 個` : '未取得資料'}</strong><br>
-    地址: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
-    電話: ${item.phone}<br>
-    <small>最後更新時間: ${item.updated}</small>`).openPopup();
-  },
-};
+const createPopUp = (pharmacy) => (`
+  <div class="pharmacy-title">${pharmacy.properties.name}</div>
+  <div class="pharmacy-address">${pharmacy.properties.address}</div>
+  <div class="pharmacy-phone">${pharmacy.properties.phone}</div>
+  <div class="pharmacy-mask-group">
+    <div class="pharmacy-mask ${getMaskAdultCountClass(pharmacy.properties.mask_adult)} popUp">
+      <div class="pharmacy-mask-title">成人口罩</div>
+      <div class="pharmacy-mask-count">${pharmacy.properties.mask_adult}</div>
+    </div>
+    <div class="pharmacy-mask ${getMaskChildCountClass(pharmacy.properties.mask_child)} popUp">
+      <div class="pharmacy-mask-title">兒童口罩</div>
+      <div class="pharmacy-mask-count">${pharmacy.properties.mask_child}</div>
+    </div>
+  </div>
+  <p id="lastUpdate">最後更新時間：${pharmacy.properties.updated}</p>
+`);
 export default {
-  name: 'home',
+  name: 'App',
   data: () => ({
-    cityName,
-    data: {},
-    osmMap: {},
+    cities,
+    pharmacies: [],
     select: {
-      city: '臺南市',
-      area: '歸仁區',
+      cityName: '臺南市',
+      areaName: '歸仁區',
     },
+    today: new Date(),
+    isLoading: false,
+    isCollapse: false,
   }),
+  async mounted() {
+    this.isLoading = true;
+    this.openStreetMap = new OpenStreetMap('map', 23.1508776, 120.2019337);
+    const response = await this.axios.get('https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json');
+    this.pharmacies = response.data.features;
+    this.updateMap();
+    this.isLoading = false;
+  },
   methods: {
-    updateMarker() {
-      const pharmacies = this.data.filter((pharmacy) => {
-        if (!this.select.area) {
-          return pharmacy.properties.county === this.select.city;
-        }
-        return pharmacy.properties.town === this.select.area;
+    getMaskAdultCountClass,
+    getMaskChildCountClass,
+    setMarkers() {
+      this.filterPharmacies.forEach((pharmacy) => {
+        this.addMarker(pharmacy);
       });
-      pharmacies.forEach((pharmacy) => {
-        const { properties, geometry } = pharmacy;
-        osm.addMapMarker(
-          geometry.coordinates[0],
-          geometry.coordinates[1],
-          properties,
-        );
-      });
-      this.penTo(pharmacies[0]);
     },
-    removeMarker() {
-      osm.removeMapMarker();
+    addMarker(pharmacy, isOpenPopUp = false) {
+      const [lng, lat] = pharmacy.geometry.coordinates;
+      const { mask_adult: maskAdultCount, mask_child: maskChildCount } = pharmacy.properties;
+      const icon = maskAdultCount || maskChildCount ? markerIcons.blue : markerIcons.grey;
+      this.openStreetMap.addMarker(lat, lng, icon, createPopUp(pharmacy), isOpenPopUp);
     },
-    penTo(pharmacy) {
-      const { properties, geometry } = pharmacy;
-      osm.penTo(geometry.coordinates[0], geometry.coordinates[1], properties);
+    resetMarkers() {
+      this.openStreetMap.removeAllMarkers();
     },
-    updateSelect() {
-      this.removeMarker();
-      this.updateMarker();
-      const pharmacy = this.data.find((item) => item.properties.town === this.select.area);
-      const { geometry, properties } = pharmacy;
-      osm.penTo(geometry.coordinates[0], geometry.coordinates[1], properties);
-      console.log();
+    moveTo(pharmacy) {
+      const [lng, lat] = pharmacy.geometry.coordinates;
+      this.openStreetMap.moveTo(lat, lng);
+    },
+    openPopUp(pharmacy) {
+      this.addMarker(pharmacy, true);
+    },
+    updateMap() {
+      this.resetMarkers();
+      this.setMarkers();
+      if (this.filterPharmacies.length !== 0) {
+        this.focus(this.filterPharmacies[0]);
+      }
+    },
+    focus(pharmacy) {
+      this.moveTo(pharmacy);
+      this.openPopUp(pharmacy);
+    },
+    sideBarCollapse() {
+      console.log('clicked');
+      console.log(this.isCollapse);
+      if (this.isCollapse === false) {
+        this.isCollapse = true;
+      } else if (this.isCollapse === true) {
+        this.isCollapse = false;
+      }
     },
   },
-  mounted() {
-    // OSM
-    osmMap = L.map('map', {
-      center: [23.009971, 120.259027],
-      zoom: 15,
-    });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '<a target="_blank" href="https://www.openstreetmap.org/">© OpenStreetMap</a>',
-      maxZoom: 18,
-    }).addTo(osmMap);
-    this.$http.get('https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json')
-      .then((res) => {
-        this.data = res.data.features;
-        this.updateMarker();
-      });
+  computed: {
+    filterPharmacies() {
+      const { cityName, areaName } = this.select;
+      return this.pharmacies.filter((pharmacy) => (
+        pharmacy.properties.county === cityName && pharmacy.properties.town === areaName
+      ));
+    },
+  },
+  filters: {
+    convertToChineseDay(day) {
+      const chineseDay = ['日', '一', '二', '三', '四', '五', '六'];
+      return `星期${chineseDay[day]}`;
+    },
+    convertToDateString(date) {
+      const pad = (n) => (n < 10 ? `0${n}` : n);
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    },
   },
 };
 </script>
 
 <style lang="scss">
-@import 'bootstrap/scss/bootstrap';
-#map {
-  height: 100vh;
-}
-.home {
-  position: relative;
-}
-.childInStock {
-  background: #ffd5d5;
-}
-.bothInStock {
-  background: #e9ffe3;
-}
-.outOfStock {
-  background: gray;
-}
-.toolbox {
-  height: 100vh;
-  overflow-y: auto;
-  a {
-    cursor: pointer;
-  }
-}
+@import "./assets/reset.scss";
+@import "./assets/style.scss";
+
 </style>
