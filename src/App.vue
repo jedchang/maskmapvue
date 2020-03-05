@@ -3,7 +3,7 @@
     <Loading :active.sync="isLoading"></Loading>
     <div class="pageWrap">
       <div class="sidebar" :class="{ active:isCollapse }">
-        <a href="#" class="collapseBtn" @click="sideBarCollapse()">
+        <a href="#" class="collapseBtn" @click="sideBarCollapse(),updateMap()">
           <em v-if="!isCollapse"><i class="fa fa-angle-left fa-2" aria-hidden="true"></i></em>
           <em v-else><i class="fa fa-angle-right fa-2" aria-hidden="true"></i></em>
         </a>
@@ -96,7 +96,7 @@
         </div>
       </div>
       <div id="map" calss="leaflet-container leaflet-fade-anim leaflet-grab leaflet-touch-drag"
-      :class="{ active:isCollapse } ">map</div>
+      :class="{ active:isCollapse } "></div>
     </div>
   </div>
 </template>
@@ -196,8 +196,8 @@ export default {
       this.openPopUp(pharmacy);
     },
     sideBarCollapse() {
-      console.log('clicked');
-      console.log(this.isCollapse);
+      // console.log('clicked');
+      // console.log(this.isCollapse);
       if (this.isCollapse === false) {
         this.isCollapse = true;
       } else if (this.isCollapse === true) {

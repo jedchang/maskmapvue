@@ -14,15 +14,14 @@ body {
   overflow: hidden;
   transition: all 0.5s;
   &.active {
-    transform: translateX(-256px);
     width: 100vw;
+    transform: translateX(-256px);
   }
 }
 #app {
   display: flex;
   position: relative;
 }
-
 .sidebar {
   transition: all 0.5s;
 	z-index: 999;
@@ -36,7 +35,7 @@ body {
 	color: white;
 	box-shadow: 0px 3px 6px #000029;
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: column;
 }
 
 .sidebar{
@@ -87,6 +86,7 @@ body {
 	margin-bottom: 8px;
 }
 .today-description {
+  text-align: right;
 	font-size: 14px;
 }
 .today-description-high-light {
