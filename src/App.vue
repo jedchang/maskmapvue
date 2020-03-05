@@ -1,65 +1,63 @@
 <template>
   <div id="app">
     <Loading :active.sync="isLoading"></Loading>
-    <div class="sidebar" :class="{ active:isCollapse }">
+    <div class="pageWrap">
+      <div class="sidebar" :class="{ active:isCollapse }">
       <a href="#" class="collapseBtn" @click="sideBarCollapse()">
         <em v-if="!isCollapse"><i class="fa fa-angle-left fa-2" aria-hidden="true"></i></em>
         <em v-else><i class="fa fa-angle-right fa-2" aria-hidden="true"></i></em>
       </a>
-      <div class="today">
-        <h2 class="today-week">{{today.getDay() | convertToChineseDay}}</h2>
-        <div class="today-info">
-          <div class="today-date">{{today | convertToDateString}}</div>
-          <div class="today-description">身分證末碼為
-            <span class="today-description-high-light">
-              {{today.getDay() % 2 === 0 ? "0,2,4,6,8" : "1,3,5,7,9"}}
-            </span>
-            可購買
+      <div class="infoWrap">
+        <div class="today">
+          <h2 class="today-week">{{today.getDay() | convertToChineseDay}}</h2>
+          <div class="today-info">
+            <div class="today-date">{{today | convertToDateString}}</div>
+            <div class="today-description">身分證末碼為
+              <span class="today-description-high-light">
+                {{today.getDay() % 2 === 0 ? "0,2,4,6,8" : "1,3,5,7,9"}}
+              </span>
+              可購買
+            </div>
+          </div>
+        </div>
+        <div class="search">
+          <div class="search-input-group">
+            <!-- <label for="cityName">縣市</label> -->
+            <select
+              id="cityName"
+              v-model="select.cityName"
+              @change="select.areaName = ''; updateMap()"
+            >
+              <option value="" disabled>請選擇</option>
+              <option
+                v-for="city in cities"
+                :key="city.CityName"
+                :value="city.CityName"
+              >
+                {{city.CityName}}
+              </option>
+            </select>
+          </div>
+          <div class="search-input-group">
+            <!-- <label for="areaName">地區</label> -->
+            <select
+              id="areaName"
+              v-model="select.areaName"
+              @change="updateMap"
+            >
+              <option value="" disabled>請選擇</option>
+              <option
+                v-for="area in cities.find((city) => city.CityName === select.cityName).AreaList"
+                :key="area.AreaName"
+                :value="area.AreaName"
+              >
+                {{area.AreaName}}
+              </option>
+            </select>
           </div>
         </div>
       </div>
-      <div class="search">
-        <div class="search-input-group">
-          <!-- <label for="cityName">縣市</label> -->
-          <select
-            id="cityName"
-            v-model="select.cityName"
-            @change="select.areaName = ''; updateMap()"
-          >
-            <option
-              value=""
-              disabled
-            >請選擇</option>
-            <option
-              v-for="city in cities"
-              :key="city.CityName"
-              :value="city.CityName"
-            >
-              {{city.CityName}}
-            </option>
-          </select>
-        </div>
-        <div class="search-input-group">
-          <!-- <label for="areaName">地區</label> -->
-          <select
-            id="areaName"
-            v-model="select.areaName"
-            @change="updateMap"
-          >
-            <option
-              value=""
-              disabled
-            >請選擇</option>
-            <option
-              v-for="area in cities.find((city) => city.CityName === select.cityName).AreaList"
-              :key="area.AreaName"
-              :value="area.AreaName"
-            >
-              {{area.AreaName}}
-            </option>
-          </select>
-        </div>
-      </div>
+
       <div class="pharmacies">
         <template v-if="filterPharmacies.length !== 0">
           <template v-for="pharmacy in filterPharmacies">
@@ -98,7 +96,9 @@
         </div>
       </div>
     </div>
-    <div id="map" :class="{ active:isCollapse }">map</div>
+    <div id="map" calss="leaflet-container leaflet-fade-anim leaflet-grab leaflet-touch-drag"
+     :class="{ active:isCollapse } ">map</div>
+    </div>
   </div>
 </template>
 
