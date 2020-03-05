@@ -22,6 +22,7 @@ body {
   display: flex;
   position: relative;
 }
+
 .sidebar {
   transition: all 0.5s;
 	z-index: 999;
@@ -35,7 +36,7 @@ body {
 	color: white;
 	box-shadow: 0px 3px 6px #000029;
 	display: flex;
-	flex-direction: column;
+	flex-wrap: wrap;
 }
 
 .sidebar{
