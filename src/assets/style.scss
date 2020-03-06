@@ -12,12 +12,12 @@ body {
   background-color: grap;
   height: 100vh;
   width: calc(100vw - 256px);
-  transform: translateX(256px);
+  transform: translateX(0px);
   overflow: hidden;
   transition: all 0.5s;
   &.active {
     width: 100vw;
-    transform: translateX(0px);
+    transform: translateX(-256px);
   }
 }
 #app {
@@ -27,7 +27,7 @@ body {
 .sidebar {
   transition: all 0.5s;
 	z-index: 999;
-	position: absolute;
+	position: relative;
 	top: 0px;
 	left: 0px;
 	height: 100vh;
