@@ -12,12 +12,12 @@ body {
   background-color: grap;
   height: 100vh;
   width: calc(100vw - 256px);
-  transform: translateX(0px);
+  transform: translateX(256px);
   overflow: hidden;
   transition: all 0.5s;
   &.active {
     width: 100vw;
-    transform: translateX(-256px);
+    transform: translateX(0px);
   }
 }
 #app {
@@ -27,7 +27,7 @@ body {
 .sidebar {
   transition: all 0.5s;
 	z-index: 999;
-	position: relative;
+	position: absolute;
 	top: 0px;
 	left: 0px;
 	height: 100vh;
@@ -38,7 +38,7 @@ body {
 	box-shadow: 0px 3px 6px #000029;
   display: flex;
   flex-wrap: wrap;
-  // flex-direction: column;
+  flex-direction: column;
 
 }
 
@@ -51,7 +51,7 @@ body {
 
 .collapseBtn {
   position: absolute;
-  top: 100px;
+  top: 97px;
   right: -27px;
   height: 49px;
   width: 27px;
@@ -66,6 +66,7 @@ body {
 }
 
 .infoWrap {
+  // height: 192px;
   display: flex;
   flex-wrap: wrap;
 }
@@ -134,8 +135,8 @@ body {
 .pharmacies {
   // display: flex;
   // flex-wrap: wrap;
-  overflow: auto;
-  height: calc(100vh - 184px);
+  overflow-y: auto;
+  height: calc(100vh - 182px);
 }
 .pharmacy {
 	cursor: pointer;
@@ -201,10 +202,16 @@ body {
 
 .no-data {
   width:100%;
-	margin-top: 100px;
+  margin-top: 100px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+@media (min-width: 1600px) {
+  .pharmacies {
+    height: calc(100vh - 146px);
+  }
 }
 
 @media (max-width: 1600px) {

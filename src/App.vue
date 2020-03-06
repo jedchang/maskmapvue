@@ -3,7 +3,7 @@
     <Loading :active.sync="isLoading"></Loading>
     <div class="pageWrap">
       <div class="sidebar" :class="{ active:isCollapse }">
-        <a href="#" class="collapseBtn" @click="sideBarCollapse(),updateMap()">
+        <a href="#" class="collapseBtn" @click="sideBarCollapse()">
           <em v-if="!isCollapse"><i class="fa fa-angle-left fa-2" aria-hidden="true"></i></em>
           <em v-else><i class="fa fa-angle-right fa-2" aria-hidden="true"></i></em>
         </a>
@@ -95,7 +95,7 @@
           </div>
         </div>
       </div>
-      <div id="map" calss="leaflet-container leaflet-fade-anim leaflet-grab leaflet-touch-drag"
+      <div id="map" class="leaflet-container leaflet-fade-anim leaflet-grab leaflet-touch-drag"
       :class="{ active:isCollapse } "></div>
     </div>
   </div>
