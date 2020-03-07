@@ -194,6 +194,7 @@ export default {
     focus(pharmacy) {
       this.moveTo(pharmacy);
       this.openPopUp(pharmacy);
+      this.sideBarCollapse();
     },
     sideBarCollapse() {
       // console.log('clicked');
