@@ -159,6 +159,7 @@ export default {
     this.pharmacies = response.data.features;
     this.updateMap();
     this.isLoading = false;
+    this.isCollapse = false;
   },
   methods: {
     getMaskAdultCountClass,
