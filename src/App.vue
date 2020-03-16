@@ -12,7 +12,13 @@
             <h2 class="today-week">{{today.getDay() | convertToChineseDay}}</h2>
             <div class="today-info">
               <div class="today-date">{{today | convertToDateString}}</div>
-              <div class="today-description">身分證末碼為
+              <div v-if="today.getDay() % 7 === 0" class="today-description">身分證末碼為
+                <span class="today-description-high-light">
+                  奇數或偶數
+                </span>
+                可購買
+              </div>
+              <div v-else class="today-description">身分證末碼為
                 <span class="today-description-high-light">
                   {{today.getDay() % 2 === 0 ? "0,2,4,6,8" : "1,3,5,7,9"}}
                 </span>
